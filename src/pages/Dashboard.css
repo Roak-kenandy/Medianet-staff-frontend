@@ -1,0 +1,122 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f9fc;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .dashboard-container {
+    max-width: 1200px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+  
+  /* Form Styles */
+  .staff-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+  
+  .staff-form input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px;
+    border: 1px solid #dcdde1;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .staff-form button {
+    padding: 12px 20px;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .staff-form button:hover {
+    background-color: #1d6f99;
+  }
+  
+  /* Table Styles */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  thead {
+    background-color: #2c3e50;
+    color: white;
+  }
+  
+  thead th {
+    padding: 12px;
+    text-align: left;
+  }
+  
+  tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #dcdde1;
+  }
+  
+  tbody tr:hover {
+    background-color: #eaeaea;
+  }
+  
+  table button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  table button:first-child {
+    background-color: #27ae60;
+    color: white;
+  }
+  
+  table button:first-child:hover {
+    background-color: #219653;
+  }
+  
+  table button:last-child {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  table button:last-child:hover {
+    background-color: #c0392b;
+  }
+
+  .staff-secondary{
+    height: 44vh;
+    overflow: scroll;
+  }
+
+  .actions{
+    display: flex;
+    gap: 0.5rem;
+  }
+  
