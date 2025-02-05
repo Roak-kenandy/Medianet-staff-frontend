@@ -1,11 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { QRCodeCanvas } from 'qrcode.react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Dashboard.css';
+import './QRCodeDialog.css';
+
+const frontEndURL = 'http://localhost:3000';
 
 const Dashboard = () => {
   const [staffList, setStaffList] = useState([]);
+  const qrCodeRef = useRef();
+  const [showDialog, setShowDialog] = useState(false);
+
+  const openDialog = () => setShowDialog(true);
+  const closeDialog = () => setShowDialog(false);
   const [formData, setFormData] = useState({
     staffId: '',
     firstname: '',
@@ -22,13 +30,14 @@ const Dashboard = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
 
+
   useEffect(() => {
     fetchStaffDetails();
   }, []);
 
   const fetchStaffDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/staffRoutes/staff');
+      const response = await axios.get(`${frontEndURL}/api/staffRoutes/staff`);
       setStaffList(response.data);
     } catch (error) {
       console.error('Error fetching staff details:', error);
@@ -43,9 +52,9 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       if (isEditing) {
-        await axios.put(`http://localhost:3000/api/staffRoutes/staff/${formData.staffid}`, formData);
+        await axios.put(`${frontEndURL}/api/staffRoutes/staff/${formData.staffid}`, formData);
       } else {
-        await axios.post('http://localhost:3000/api/staffRoutes/staff', formData);
+        await axios.post(`${frontEndURL}/api/staffRoutes/staff`, formData);
       }
       setFormData({
         staffId: '',
@@ -75,18 +84,11 @@ const Dashboard = () => {
 
   const handleDelete = async (staffId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/staffRoutes/staff/${staffId}`);
+      await axios.delete(`${frontEndURL}/api/staffRoutes/staff/${staffId}`);
       fetchStaffDetails();
     } catch (error) {
       console.error('Error deleting staff:', error);
     }
-  };
-
-  const generateQRCodeURL = (staff) => {
-    const localIP = '10.10.0.251'; // Replace with your machine's IP address
-    const baseURL = `http://${localIP}:3000/staff-info`;
-    const queryParams = new URLSearchParams(staff).toString();
-    return `${baseURL}?${queryParams}`;
   };
   
 
@@ -140,8 +142,43 @@ const Dashboard = () => {
                 <td>{staff.designation}</td>
                 <td>{staff.superior}</td>
                 <td>{staff.department}</td>
+
                 <td>
-                  <QRCodeCanvas value={generateQRCodeURL(staff)} size={100} />
+                  <Link to={`/staff-details?data=${encodeURIComponent(JSON.stringify(staff))}`}>
+                    <QRCodeCanvas
+                      value={`${frontEndURL}/staff-details?data=${encodeURIComponent(JSON.stringify(staff))}`}
+                    />
+                  </Link>
+
+                  <button
+                      style={{
+                        marginTop: "10px",
+                        padding: "5px 10px",
+                        backgroundColor: "#007bff",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                      onClick={openDialog}
+                    >
+                      View QR as Image
+                    </button>
+
+
+                    {showDialog && (
+        <div className="dialog-overlay">
+          <div className="dialog-box" ref={qrCodeRef}>
+            <span className="close-icon" onClick={closeDialog}>
+              &times;
+            </span>
+            <h3>QR Code</h3>
+            <QRCodeCanvas
+              value={`${frontEndURL}/staff-details?data=${encodeURIComponent(JSON.stringify(staff))}`}
+              size={200}
+            />
+          </div>
+        </div>
+      )}
                 </td>
                 <td>
                   <div className='actions'>
