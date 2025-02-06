@@ -10,7 +10,7 @@ const path = require('path');
 const app = express();
 
 // Enable CORS for all routes
-app.use(cors({ origin: 'https://medianet-staff-frontend.onrender.com' }));
+app.use(cors());
 
 // Middleware to parse JSON body
 app.use(express.json());
