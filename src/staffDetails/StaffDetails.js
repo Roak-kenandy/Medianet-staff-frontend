@@ -10,7 +10,9 @@ const StaffDetailsPage = () => {
     const queryParams = new URLSearchParams(location.search);
     const staffDataEncoded = queryParams.get("data");
     if (staffDataEncoded) {
-      const parsedData = JSON.parse(decodeURIComponent(staffDataEncoded));
+      // Directly use atob() to decode Base64 data
+      const decodedData = atob(staffDataEncoded);
+      const parsedData = JSON.parse(decodedData);
       setStaffData(parsedData);
     }
   }, [location]);

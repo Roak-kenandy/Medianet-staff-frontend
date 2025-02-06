@@ -6,6 +6,7 @@
     "@material-ui/core": "^4.12.4",
     "@shadcn/ui": "^0.0.4",
     "axios": "^1.7.9",
+    "buffer": "^6.0.3",
     "cra-template": "1.2.0",
     "jspdf": "^2.5.2",
     "qrcode.react": "^4.2.0",
