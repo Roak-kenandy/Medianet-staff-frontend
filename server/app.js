@@ -10,12 +10,7 @@ const path = require('path');
 const app = express();
 
 // Enable CORS for all routes
-const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Allow only your frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  };
-  app.use(cors(corsOptions));
+app.use(cors());
 
 // Middleware to parse JSON body
 app.use(express.json());
