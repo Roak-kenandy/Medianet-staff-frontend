@@ -10,7 +10,6 @@ const path = require('path');
 const app = express();
 
 // Enable CORS for all routes
-//added policy
 app.use(cors());
 
 // Middleware to parse JSON body
