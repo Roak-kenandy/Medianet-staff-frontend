@@ -2,10 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Link } from 'react-router-dom';
+import { Buffer } from 'buffer';
+
 import './Dashboard.css';
 import './QRCodeDialog.css';
 
-const frontEndURL = 'http://localhost:3000';
+const frontEndURL = 'https://medianet-staff-frontend.onrender.com';
 
 const Dashboard = () => {
   const [staffList, setStaffList] = useState([]);
@@ -47,6 +49,7 @@ const Dashboard = () => {
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -144,11 +147,13 @@ const Dashboard = () => {
                 <td>{staff.department}</td>
 
                 <td>
-                  <Link to={`/staff-details?data=${encodeURIComponent(JSON.stringify(staff))}`}>
+                  <Link to={`/staff-details?data=${Buffer.from(JSON.stringify(staff)).toString('base64')}`}>
                     <QRCodeCanvas
-                      value={`${frontEndURL}/staff-details?data=${encodeURIComponent(JSON.stringify(staff))}`}
-                    />
-                  </Link>
+                       value={`${frontEndURL}/#/staff-details?data=${Buffer.from(JSON.stringify(staff)).toString('base64')}`}
+                     />
+                 </Link>
+
+
 
                   <button
                       style={{
