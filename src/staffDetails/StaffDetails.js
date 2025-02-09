@@ -1,8 +1,11 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import './StaffDetails.css'; // External CSS for styling
+import axios from 'axios';
 
 const StaffDetailsPage = () => {
+  const frontEndURL = 'https://medianet-staff-frontend.onrender.com';
+// const frontEndURL = 'http://localhost:3000';
   const location = useLocation();
   const [staffData, setStaffData] = useState(null);
 
@@ -13,19 +16,40 @@ const StaffDetailsPage = () => {
       // Directly use atob() to decode Base64 data
       const decodedData = atob(staffDataEncoded);
       const parsedData = JSON.parse(decodedData);
-      setStaffData(parsedData);
+      fetchStaffDetails(parsedData.staffid)
     }
   }, [location]);
+
+  const fetchStaffDetails = async (staffId) => {
+    try {
+      const response = await axios.get(`${frontEndURL}/api/staffRoutes/staff/${staffId}`);
+      setStaffData(response.data);
+    } catch (error) {
+      console.error('Error fetching staff details:', error);
+    }
+  };
+
+  const getImageSrc = (imageData) => {
+    if (imageData && imageData.type === 'Buffer') {
+      const base64Image = btoa(
+        String.fromCharCode(...new Uint8Array(imageData.data))
+      );
+      return `data:image/jpeg;base64,${base64Image}`; // Assuming the image is JPEG
+    }
+    return null;
+  };
+  
 
   return staffData ? (
     <div className="staff-details-container">
       <h1>Staff Details</h1>
       <div className="staff-info">
-        {staffData.image ? (
-          <img src={staffData.image} alt="Staff" className="staff-image" />
-        ) : (
-          <div className="staff-image-placeholder"></div>
-        )}
+      {getImageSrc(staffData.staffimage) ? (
+      <img src={getImageSrc(staffData.staffimage)} alt="Staff" className="staff-image"  draggable="false"/>
+      ) : (
+      <div className="staff-image-placeholder"></div>
+)}
+
         <div className="staff-info-text">
           <p><strong>First Name:</strong> {staffData.firstname}</p>
           <p><strong>Last Name:</strong> {staffData.lastname}</p>

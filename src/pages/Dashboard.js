@@ -3,7 +3,6 @@ import axios from 'axios';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Link } from 'react-router-dom';
 import { Buffer } from 'buffer';
-
 import './Dashboard.css';
 import './QRCodeDialog.css';
 
@@ -13,9 +12,6 @@ const Dashboard = () => {
   const [staffList, setStaffList] = useState([]);
   const qrCodeRef = useRef();
   const [showDialog, setShowDialog] = useState(false);
-
-  const openDialog = () => setShowDialog(true);
-  const closeDialog = () => setShowDialog(false);
   const [formData, setFormData] = useState({
     staffId: '',
     firstname: '',
@@ -29,9 +25,9 @@ const Dashboard = () => {
     designation: '',
     superior: '',
     department: '',
+    staffImage: null, // New image field
   });
   const [isEditing, setIsEditing] = useState(false);
-
 
   useEffect(() => {
     fetchStaffDetails();
@@ -47,18 +43,55 @@ const Dashboard = () => {
   };
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
+  // const handleImageChange = (e) => {
+  //   setFormData({ ...formData, staffImage: e.target.files[0] });
+  // };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Convert image to a Blob and store it in formData
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const arrayBuffer = reader.result;
+        const blob = new Blob([arrayBuffer], { type: file.type });
+        setFormData({ ...formData, staffImage: blob });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
+
+    const handleDelete = async (staffId) => {
+    try {
+      await axios.delete(`${frontEndURL}/api/staffRoutes/staff/${staffId}`);
+      fetchStaffDetails();
+    } catch (error) {
+      console.error('Error deleting staff:', error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (isEditing) {
-        await axios.put(`${frontEndURL}/api/staffRoutes/staff/${formData.staffid}`, formData);
-      } else {
-        await axios.post(`${frontEndURL}/api/staffRoutes/staff`, formData);
+      const formDataPayload = new FormData();
+      for (let key in formData) {
+        formDataPayload.append(key, formData[key]);
       }
+
+      if (isEditing) {
+        await axios.put(`${frontEndURL}/api/staffRoutes/staff/${formData.staffId}`, formDataPayload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        await axios.post(`${frontEndURL}/api/staffRoutes/staff`, formDataPayload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
       setFormData({
         staffId: '',
         firstname: '',
@@ -72,6 +105,7 @@ const Dashboard = () => {
         designation: '',
         superior: '',
         department: '',
+        staffImage: null,
       });
       setIsEditing(false);
       fetchStaffDetails();
@@ -80,45 +114,29 @@ const Dashboard = () => {
     }
   };
 
-  const handleEdit = (staff) => {
-    setFormData(staff);
-    setIsEditing(true);
-  };
-
-  const handleDelete = async (staffId) => {
-    try {
-      await axios.delete(`${frontEndURL}/api/staffRoutes/staff/${staffId}`);
-      fetchStaffDetails();
-    } catch (error) {
-      console.error('Error deleting staff:', error);
-    }
-  };
-  
-
   return (
     <div className="dashboard-container">
-      <div>
-        <h1>Staff Details Management</h1>
+      <h1>Staff Details Management</h1>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="staff-form">
-          <input name="firstname" placeholder="First Name" value={formData.firstname} onChange={handleInputChange} />
-          <input name="lastname" placeholder="Last Name" value={formData.lastname} onChange={handleInputChange} />
-          <input name="employeeid" placeholder="Employee ID" value={formData.employeeid} onChange={handleInputChange} />
-          <input name="nationality" placeholder="Nationality" value={formData.nationality} onChange={handleInputChange} />
-          <input name="countrycode1" placeholder="Country Code 1" value={formData.countrycode1} onChange={handleInputChange} />
-          <input name="contactnumber1" placeholder="Contact Number 1" value={formData.contactnumber1} onChange={handleInputChange} />
-          <input name="countrycode2" placeholder="Country Code 2" value={formData.countrycode2} onChange={handleInputChange} />
-          <input name="contactnumber2" placeholder="Contact Number 2" value={formData.contactnumber2} onChange={handleInputChange} />
-          <input name="designation" placeholder="Designation" value={formData.designation} onChange={handleInputChange} />
-          <input name="superior" placeholder="Superior" value={formData.superior} onChange={handleInputChange} />
-          <input name="department" placeholder="Department" value={formData.department} onChange={handleInputChange} />
-          <button type="submit">{isEditing ? 'Update' : 'Create'}</button>
-        </form>
-      </div>
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="staff-form">
+        <input name="firstname" placeholder="First Name" value={formData.firstname} onChange={handleInputChange} />
+        <input name="lastname" placeholder="Last Name" value={formData.lastname} onChange={handleInputChange} />
+        <input name="employeeid" placeholder="Employee ID" value={formData.employeeid} onChange={handleInputChange} />
+        <input name="nationality" placeholder="Nationality" value={formData.nationality} onChange={handleInputChange} />
+        <input name="countrycode1" placeholder="Country Code 1" value={formData.countrycode1} onChange={handleInputChange} />
+        <input name="contactnumber1" placeholder="Contact Number 1" value={formData.contactnumber1} onChange={handleInputChange} />
+        <input name="countrycode2" placeholder="Country Code 2" value={formData.countrycode2} onChange={handleInputChange} />
+        <input name="contactnumber2" placeholder="Contact Number 2" value={formData.contactnumber2} onChange={handleInputChange} />
+        <input name="designation" placeholder="Designation" value={formData.designation} onChange={handleInputChange} />
+        <input name="superior" placeholder="Superior" value={formData.superior} onChange={handleInputChange} />
+        <input name="department" placeholder="Department" value={formData.department} onChange={handleInputChange} />
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+        <button type="submit">{isEditing ? 'Update' : 'Create'}</button>
+      </form>
 
       {/* Table */}
-      <div className='staff-secondary'>
+      <div className="staff-secondary">
         <table>
           <thead>
             <tr>
@@ -145,51 +163,18 @@ const Dashboard = () => {
                 <td>{staff.designation}</td>
                 <td>{staff.superior}</td>
                 <td>{staff.department}</td>
-
                 <td>
                   <Link to={`/staff-details?data=${Buffer.from(JSON.stringify(staff)).toString('base64')}`}>
                     <QRCodeCanvas
-                       value={`${frontEndURL}/#/staff-details?data=${Buffer.from(JSON.stringify(staff)).toString('base64')}`}
-                     />
-                 </Link>
-
-
-
-                  <button
-                      style={{
-                        marginTop: "10px",
-                        padding: "5px 10px",
-                        backgroundColor: "#007bff",
-                        color: "white",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                      onClick={openDialog}
-                    >
-                      View QR as Image
-                    </button>
-
-
-                    {showDialog && (
-        <div className="dialog-overlay">
-          <div className="dialog-box" ref={qrCodeRef}>
-            <span className="close-icon" onClick={closeDialog}>
-              &times;
-            </span>
-            <h3>QR Code</h3>
-            <QRCodeCanvas
-              value={`${frontEndURL}/staff-details?data=${encodeURIComponent(JSON.stringify(staff))}`}
-              size={200}
-            />
-          </div>
-        </div>
-      )}
+                      value={`https://medianet-qr-code.netlify.app//#/staff-details?data=${Buffer.from(
+                        JSON.stringify({ staffid: staff.staffid })
+                      ).toString('base64')}`}
+                    />
+                  </Link>
                 </td>
                 <td>
-                  <div className='actions'>
-                  <button onClick={() => handleEdit(staff)}>Edit</button>
+                  <button onClick={() => setFormData(staff)}>Edit</button>
                   <button onClick={() => handleDelete(staff.staffid)}>Delete</button>
-                  </div>
                 </td>
               </tr>
             ))}
@@ -201,3 +186,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
