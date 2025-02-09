@@ -2,6 +2,26 @@ const express = require('express');
 const router = express.Router();
 const sequelize = require('../config/db'); // Ensure this points to your DB connection
 const { Sequelize } = require('sequelize');
+const fs = require('fs');
+
+const multer = require('multer');
+const path = require('path');
+
+// Set up storage configuration for uploaded images
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Save files in the 'uploads' directory
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  },
+});
+
+// Multer middleware for handling image uploads
+const upload = multer({ storage });
+
+const uploadDir = path.join(__dirname, 'uploads');
 
 
 
@@ -51,24 +71,27 @@ router.get('/staff', async (req, res) => {
 });
 
 // POST a new staff record
-router.post('/staff', async (req, res) => {
+router.post('/staff',upload.single('staffImage'), async (req, res) => {
   const {
     firstname, lastname, employeeid, nationality,
     contactnumber1, countrycode1, contactnumber2,
     countrycode2, designation, superior, department,
   } = req.body;
 
+  const staffImage = req.file ? fs.readFileSync(path.join(__dirname, '..', 'uploads', req.file.filename)) : null;
+
+
   try {
     await sequelize.query(
       `INSERT INTO StaffDetails (firstname, lastname, employeeid, nationality, 
         contactnumber1, countrycode1, contactnumber2, countrycode2, 
-        designation, superior, department) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        designation, superior, department, staffImage) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
             firstname, lastname, employeeid, nationality,
             contactnumber1, countrycode1, contactnumber2,
-            countrycode2, designation, superior, department,
+            countrycode2, designation, superior, department,staffImage
         ],
       }
     );
@@ -79,8 +102,8 @@ router.post('/staff', async (req, res) => {
   }
 });
 
-// UPDATE staff details
-router.put('/staff/:staffId', async (req, res) => {
+// Update staff details including image
+router.put('/staff/:staffId', upload.single('staffImage'), async (req, res) => {
   const staffId = req.params.staffId;
   const {
     firstname, lastname, employeeid, nationality,
@@ -88,21 +111,26 @@ router.put('/staff/:staffId', async (req, res) => {
     countrycode2, designation, superior, department,
   } = req.body;
 
+  const staffImage = req.file ? fs.readFileSync(path.join(__dirname, '..', 'uploads', req.file.filename)) : null;
+
   try {
+    const updateFields = [
+      firstname, lastname, employeeid, nationality,
+      contactnumber1, countrycode1, contactnumber2,
+      countrycode2, designation, superior, department,
+      staffImage, staffId,
+    ];
+
     await sequelize.query(
-      `UPDATE StaffDetails SET firstname = ?, lastname = ?, employeeid = ?, nationality = ?, 
-        contactnumber1 = ?, countrycode1 = ?, contactnumber2 = ?, countrycode2 = ?, 
-        designation = ?, superior = ?, department = ? 
-        WHERE staffId = ?`,
-      {
-        replacements: [
-            firstname, lastname, employeeid, nationality,
-            contactnumber1, countrycode1, contactnumber2,
-            countrycode2, designation, superior, department,
-          staffId,
-        ],
-      }
+      `UPDATE StaffDetails 
+      SET firstname = ?, lastname = ?, employeeid = ?, nationality = ?, 
+          contactnumber1 = ?, countrycode1 = ?, contactnumber2 = ?, 
+          countrycode2 = ?, designation = ?, superior = ?, department = ?, 
+          staffImage = ? 
+      WHERE staffId = ?`,
+      { replacements: updateFields }
     );
+
     res.json({ message: 'Staff updated successfully' });
   } catch (error) {
     console.error(error);
@@ -123,5 +151,30 @@ router.delete('/staff/:staffId', async (req, res) => {
     res.status(500).json({ message: 'Error deleting staff' });
   }
 });
+
+// GET staff details by staffId
+router.get('/staff/:staffId', async (req, res) => {
+    const staffId = req.params.staffId;
+  
+    try {
+      const staffDetails = await sequelize.query(
+        'SELECT * FROM StaffDetails WHERE staffId = :staffId',
+        {
+          replacements: { staffId },
+          type: Sequelize.QueryTypes.SELECT,
+        }
+      );
+  
+      if (staffDetails.length === 0) {
+        return res.status(404).json({ message: 'Staff not found' });
+      }
+  
+      res.json(staffDetails[0]); // Assuming staffDetails is an array, and we return the first item
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error retrieving staff details' });
+    }
+  });
+  
 
 module.exports = router;
