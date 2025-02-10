@@ -65,6 +65,26 @@ const Dashboard = () => {
     }
   };
 
+  const handleEdit = (staff) => {
+    setIsEditing(true); // Enable edit mode
+    setFormData({
+      staffId: staff.staffid || '', // Populate the staffId for the update operation
+      firstname: staff.firstname || '',
+      lastname: staff.lastname || '',
+      employeeid: staff.employeeid || '',
+      nationality: staff.nationality || '',
+      contactnumber1: staff.contactnumber1 || '',
+      countrycode1: staff.countrycode1 || '',
+      contactnumber2: staff.contactnumber2 || '',
+      countrycode2: staff.countrycode2 || '',
+      designation: staff.designation || '',
+      superior: staff.superior || '',
+      department: staff.department || '',
+      staffImage: staff.staffImage || null,
+    });
+  };
+  
+
     const handleDelete = async (staffId) => {
     try {
       await axios.delete(`${frontEndURL}/api/staffRoutes/staff/${staffId}`);
@@ -166,14 +186,14 @@ const Dashboard = () => {
                 <td>
                   <Link to={`/staff-details?data=${Buffer.from(JSON.stringify(staff)).toString('base64')}`}>
                     <QRCodeCanvas
-                      value={`https://medianet-qr-code.netlify.app//#/staff-details?data=${Buffer.from(
+                      value={`http://profile.medianet.mv/#/staff-details?data=${Buffer.from(
                         JSON.stringify({ staffid: staff.staffid })
                       ).toString('base64')}`}
                     />
                   </Link>
                 </td>
                 <td>
-                  <button onClick={() => setFormData(staff)}>Edit</button>
+                  <button onClick={() => handleEdit(staff)}>Edit</button>
                   <button onClick={() => handleDelete(staff.staffid)}>Delete</button>
                 </td>
               </tr>
