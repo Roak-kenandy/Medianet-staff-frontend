@@ -47,10 +47,6 @@ const Dashboard = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // const handleImageChange = (e) => {
-  //   setFormData({ ...formData, staffImage: e.target.files[0] });
-  // };
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {

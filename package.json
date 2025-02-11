@@ -1,6 +1,7 @@
 {
   "name": "my-app",
   "version": "0.1.0",
+  "homepage": "http://profile.medianet.mv/admin",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.12.4",
