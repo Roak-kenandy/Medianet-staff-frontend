@@ -6,7 +6,7 @@ import StaffDetailsPage from './staffDetails/StaffDetails'; // Import StaffDetai
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <BrowserRouter basename="/admin">
         <div className="pages">
           <Routes>
             <Route path="/login" element={<Home />} />
