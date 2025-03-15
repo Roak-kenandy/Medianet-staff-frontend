@@ -13,7 +13,7 @@ const Home = () => {
       event.preventDefault();
   
       try {
-        const response = await fetch('https://medianet-staff-frontend.onrender.com/api/staffRoutes/login', {
+        const response = await fetch('https://profile.medianet.mv/api/staffRoutes/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
