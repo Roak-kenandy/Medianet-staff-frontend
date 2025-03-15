@@ -6,7 +6,9 @@ import { Buffer } from 'buffer';
 import './Dashboard.css';
 import './QRCodeDialog.css';
 
-const frontEndURL = 'https://medianet-staff-frontend.onrender.com';
+// const frontEndURL = 'https://medianet-staff-frontend.onrender.com';
+// const frontEndURL = 'http://localhost:3000';
+const frontEndURL = 'https://profile.medianet.mv';
 
 const Dashboard = () => {
   const [staffList, setStaffList] = useState([]);
@@ -62,6 +64,7 @@ const Dashboard = () => {
   };
 
   const handleEdit = (staff) => {
+    console.log(staff,'staff details in handleEdit')
     setIsEditing(true); // Enable edit mode
     setFormData({
       staffId: staff.staffid || '', // Populate the staffId for the update operation
@@ -182,7 +185,7 @@ const Dashboard = () => {
                 <td>
                   <Link to={`/staff-details?data=${Buffer.from(JSON.stringify(staff)).toString('base64')}`}>
                     <QRCodeCanvas
-                      value={`http://profile.medianet.mv/#/staff-details?data=${Buffer.from(
+                      value={`https://profile.medianet.mv/#/staff-details?data=${Buffer.from(
                         JSON.stringify({ staffid: staff.staffid })
                       ).toString('base64')}`}
                     />

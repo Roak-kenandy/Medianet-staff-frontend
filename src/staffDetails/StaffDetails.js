@@ -4,8 +4,9 @@ import './StaffDetails.css'; // External CSS for styling
 import axios from 'axios';
 
 const StaffDetailsPage = () => {
-  const frontEndURL = 'https://medianet-staff-frontend.onrender.com';
+  // const frontEndURL = 'https://medianet-staff-frontend.onrender.com';
 // const frontEndURL = 'http://localhost:3000';
+const frontEndURL = 'https://profile.medianet.mv';
   const location = useLocation();
   const [staffData, setStaffData] = useState(null);
 
